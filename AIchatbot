@@ -1,0 +1,42 @@
+import streamlit as st
+from bs4 import BeautifulSoup
+import requests
+import google.generativeai as genai
+
+genai.configure(
+    api_key= "AIzaSyAopXagYkqsLaIAUjO6_R1GQMtXh4H-1FQ"
+)
+
+def read_content_from_page(url):
+    response1 = requests.get(url)
+
+    soup = BeautifulSoup(response1.content, 'html.parser')
+    return soup.get_text(separator='\n')
+
+
+model= genai.GenerativeModel(
+    model_name= "gemini-1.5-flash",
+
+)
+
+st.title("ChatBot")
+
+
+content= read_content_from_page(st.chat_input())
+
+if content:
+    chat_session= model.start_chat(
+        history=[
+            {
+                "role": "user",
+                "parts":[
+                content,
+                "write summary about this content",
+                ],
+            },
+        ],
+    )
+
+response = chat_session.send_message(content)
+st.write(response.text)
+
